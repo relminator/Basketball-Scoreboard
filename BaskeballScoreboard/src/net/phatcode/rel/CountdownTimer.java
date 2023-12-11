@@ -10,7 +10,9 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -55,6 +57,7 @@ public class CountdownTimer extends JPanel implements ActionListener
     private JButton pauseButton;
     private JButton resetButton;
     private JButton editButton;
+    private JButton editShotButton;
     
     private JButton leftButton;
     private JButton rightButton;
@@ -173,6 +176,7 @@ public class CountdownTimer extends JPanel implements ActionListener
         eastPanel.add(lblRightBall);
         
         southPanel.add(toolBar);
+        toolBar.add(editShotButton);
         toolBar.add(editButton);
         toolBar.add(resetButton);
         toolBar.add(pauseButton);
@@ -190,6 +194,7 @@ public class CountdownTimer extends JPanel implements ActionListener
     
     }
 
+    
     private void initLabels()
     {
         
@@ -230,6 +235,8 @@ public class CountdownTimer extends JPanel implements ActionListener
         ImageIcon reset = new ImageIcon(imageUrl);
         imageUrl = this.getClass().getClassLoader().getResource("assets/edit.png");
         ImageIcon edit = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/shotclock.png");
+        ImageIcon editShot = new ImageIcon(imageUrl);
         
         imageUrl = this.getClass().getClassLoader().getResource("assets/left.png");
         ImageIcon left = new ImageIcon(imageUrl);
@@ -241,6 +248,7 @@ public class CountdownTimer extends JPanel implements ActionListener
         pauseButton = new JButton(pause);
         resetButton = new JButton(reset);
         editButton = new JButton(edit);
+        editShotButton = new JButton(editShot);
 
         leftButton = new JButton(left);
         rightButton = new JButton(right);
@@ -279,15 +287,45 @@ public class CountdownTimer extends JPanel implements ActionListener
             }
         });
         
-        editButton.setToolTipText("Edit Time");
+        editButton.setToolTipText("Edit Game Time");
         editButton.addActionListener(new ActionListener() 
         {
             @Override
             public void actionPerformed(ActionEvent event) 
             {
-                String test1= JOptionPane.showInputDialog( 
-                        "Please input time: ",
-                        "10");   
+                pause();
+                SimpleDateFormat df = new SimpleDateFormat("mm:ss:SSS");
+                
+                String time = df.format(remainingTime);
+               
+                String gameClockString = JOptionPane.showInputDialog( 
+                        "Please input Gameclock: \n"+
+                        "Current clock is:",
+                        time);                   
+                remainingTime = timeToMillis( gameClockString );
+                
+                updateClockLabels();
+            }
+        });
+
+        editShotButton.setToolTipText("Edit Shot Clock");
+        editShotButton.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                pause();
+                SimpleDateFormat df = new SimpleDateFormat("ss:SSS");
+                
+                String time = df.format(shotClockTime);
+               
+                String shotClockString = JOptionPane.showInputDialog( 
+                        "Please input Shotclock: \n"+
+                        "Current clock is:",
+                        time);                   
+                shotClockTime = shotToMillis( shotClockString );
+                
+                updateClockLabels();
             }
         });
 
@@ -315,7 +353,50 @@ public class CountdownTimer extends JPanel implements ActionListener
 
     }
     
+    private long timeToMillis( String myTime )
+    {
+        
+        String[] timestamps = myTime.split(":");
+        
+        if( timestamps.length < 3 ) return 0;
+        
+        long minutes = Long.parseLong(timestamps[0]);
+        long seconds = Long.parseLong(timestamps[1]);
+        long milliSeconds = Long.parseLong(timestamps[2]);
+        
+        //limit values
+        clamp( minutes, 0, 59 );
+        clamp( seconds, 0, 59 );
+        clamp( milliSeconds, 0, 999 );
+        
+        return minutes * 60 * 1000 + seconds * 1000 + milliSeconds; 
+        
+        
+    }
     
+    private long shotToMillis( String myTime )
+    {
+        
+        String[] timestamps = myTime.split(":");
+        
+        if( timestamps.length < 2 ) return 0;
+        
+        long seconds = Long.parseLong(timestamps[0]);
+        long milliSeconds = Long.parseLong(timestamps[1]);
+        
+        //limit values
+        clamp( seconds, 0, 24 );
+        clamp( milliSeconds, 0, 999 );
+        
+        return  seconds * 1000 + milliSeconds; 
+        
+        
+    }
+    
+    private long clamp( long a, long min, long max )
+    {   
+        return (a < min) ? min : (a > max) ? max : a;
+    }
     private String getGameClockLabel()
     {
         SimpleDateFormat df = new SimpleDateFormat("mm:ss:SSS");
@@ -480,5 +561,8 @@ public class CountdownTimer extends JPanel implements ActionListener
         }
     }
      
+    
+    
+    
     
 }

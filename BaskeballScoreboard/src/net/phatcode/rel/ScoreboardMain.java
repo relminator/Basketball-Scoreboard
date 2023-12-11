@@ -49,8 +49,8 @@ public class ScoreboardMain extends JFrame
        // add(TestLabel, BorderLayout.PAGE_START );
         
         JPanel top = new JPanel();
-        TeamPanel left = new TeamPanel("LA LAKERS");
-        TeamPanel right = new TeamPanel("GS WARRIORS");
+        TeamPanel left = new TeamPanel("HOME");
+        TeamPanel right = new TeamPanel("VISITOR");
 
         add(top, BorderLayout.NORTH);
         add(left, BorderLayout.WEST);
