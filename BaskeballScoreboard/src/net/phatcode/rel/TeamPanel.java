@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -19,7 +18,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
-import javax.swing.border.EtchedBorder;
 
 public class TeamPanel extends JPanel
 {
@@ -121,6 +119,7 @@ public class TeamPanel extends JPanel
         
         
         plusButton.setToolTipText("Add Score");
+        plusButton.setMnemonic('P');
         plusButton.addActionListener(new ActionListener() 
         {
             @Override
@@ -130,6 +129,8 @@ public class TeamPanel extends JPanel
                 scoreLabel.setText("" + score);
             }
         });
+        
+                
         
         minusButton.setToolTipText("Subtract Score");
         minusButton.addActionListener(new ActionListener() 
@@ -250,6 +251,55 @@ public class TeamPanel extends JPanel
 
 
     }
+
+    public String getTeamName()
+    {
+        return teamName;
+    }
+
+    public int getScore()
+    {
+        return score;
+    }
+
+    public int getFouls()
+    {
+        return fouls;
+    }
+
+    public int getFontSize()
+    {
+        return size;
+    }
+
+    public Font getNumberFont()
+    {
+        return numberFont;
+    }
+
+    public Font getCalcFont()
+    {
+        return calcFont;
+    }
+
+    public Color getTextColor()
+    {
+        return textColor;
+    }
+
+    public Color getNumColor()
+    {
+        return numColor;
+    }
+
+    public void setTeamName(String teamName)
+    {
+        this.teamName = teamName;
+        nameLabel.setMyText(teamName);
+    }
  
+    
+    // Getters and setters
+    
     
 }

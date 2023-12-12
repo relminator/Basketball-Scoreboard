@@ -3,6 +3,7 @@ package net.phatcode.rel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
@@ -10,9 +11,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -81,6 +80,7 @@ public class CountdownTimer extends JPanel implements ActionListener
     private Color textColor = Color.RED;
     private Color numColor = Color.GREEN;
     
+    private int possession = 0;
     
     public CountdownTimer( int delayPerTick,
                            long duration, 
@@ -91,6 +91,8 @@ public class CountdownTimer extends JPanel implements ActionListener
         
         shotClockTime = (1000 * 24);
         this.setLayout(new BorderLayout());
+        setPreferredSize(new Dimension(180, 50));
+        setMaximumSize(new Dimension(180, 50)); 
         
         timer = new Timer(delayPerTick, new ActionListener() 
         {
@@ -186,6 +188,7 @@ public class CountdownTimer extends JPanel implements ActionListener
         
         updateClockLabels();
         
+        
     }
 
     @Override
@@ -212,7 +215,7 @@ public class CountdownTimer extends JPanel implements ActionListener
         lblLeftBall = new JLabel(ball); 
         lblRightBall = new JLabel(ball); 
         lblRightBall.setVisible(false);
-        lblLeftBall.setVisible(false);
+        lblLeftBall.setVisible(true);
         
         
         lblGame.setForeground(textColor);
@@ -335,8 +338,8 @@ public class CountdownTimer extends JPanel implements ActionListener
             @Override
             public void actionPerformed(ActionEvent event) 
             {
-                lblLeftBall.setVisible(true);
-                lblRightBall.setVisible(false);
+                possession = 0;
+                updatePossessionArrow();
             }
         });
 
@@ -346,11 +349,26 @@ public class CountdownTimer extends JPanel implements ActionListener
             @Override
             public void actionPerformed(ActionEvent event) 
             {
-                lblRightBall.setVisible(true);
-                lblLeftBall.setVisible(false);
+                possession = 1;
+                updatePossessionArrow();
             }
         });
 
+    }
+
+    private void updatePossessionArrow()
+    {
+        if( possession == 0 )
+        {
+            lblRightBall.setVisible(false);
+            lblLeftBall.setVisible(true);
+        }
+        else
+        {
+            lblRightBall.setVisible(true);
+            lblLeftBall.setVisible(false);
+        }
+        
     }
     
     private long timeToMillis( String myTime )
@@ -397,6 +415,7 @@ public class CountdownTimer extends JPanel implements ActionListener
     {   
         return (a < min) ? min : (a > max) ? max : a;
     }
+    
     private String getGameClockLabel()
     {
         SimpleDateFormat df = new SimpleDateFormat("mm:ss:SSS");
@@ -560,7 +579,52 @@ public class CountdownTimer extends JPanel implements ActionListener
             ex.printStackTrace();
         }
     }
+
+    public long getRemainingTime()
+    {
+        return remainingTime;
+    }
+    
+    
+
+    public long getShotClockTime()
+    {
+        return shotClockTime;
+    }
+
+    public int getFontSize()
+    {
+        return size;
+    }
+
+    public Font getNumberFont()
+    {
+        return numberFont;
+    }
+
+    public Font getCalcFont()
+    {
+        return calcFont;
+    }
+
+    public Color getTextColor()
+    {
+        return textColor;
+    }
+
+    public Color getNumColor()
+    {
+        return numColor;
+    }
+
+    public int getPossession()
+    {
+        return possession;
+    }
      
+    
+    
+    // getters and setters
     
     
     
