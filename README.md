@@ -15,11 +15,11 @@ Features:
 Release 1.0.0
 
 The cleaner diplay you see on extended screens:
-![Alt text](basketscreen03.png?raw=true)
-
-Editor displayed on your acreen:
 ![Alt text](basketscreen01.png?raw=true)
+
+Editor displayed on your screen:
 ![Alt text](basketscreen02.png?raw=true)
+![Alt text](basketscreen03.png?raw=true)
 
 
 How to use:
@@ -29,7 +29,7 @@ https://www.java.com/en/download/help/download_options.html
 2. Connect an external monitor or a TV via HDMI to your PC.
 
 3. Set up multiple displays on your PC:
-   On Windows 11: Settings->System->Display->Multiple Displays->Extend This Display
+On Windows 11: Settings->System->Display->Multiple Displays->Extend This Display
 ![Alt text](basketscreencheckdisplay01.png?raw=true)
 
 4. Run BasketballScoreboard.jar
@@ -60,6 +60,6 @@ Changes:
 
 12-13-23(1.0.0)
 * Fixed some timing errors
-* Timouts
+* Timeouts
 * Marquee Title on center bottom
 * Cleaner Display 
