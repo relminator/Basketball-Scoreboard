@@ -416,8 +416,13 @@ public class ScoreboardMain extends JFrame
                         "\n"+
                         "Richard Eric M. Lope\n"+
                         "http://rel.phatcode.net\n"+
+                        "https://github.com/relminator\n"+
                         "Icons by https://icons8.com/ \n"+
-                        "Fonts by https://www.fontspace.com/",
+                        "Fonts by https://www.fontspace.com/ \n"+
+                        "Theme by https://www.formdev.com/flatlaf/ \n"+
+                        "Java Runtime by https://www.microsoft.com/openjdk \n"+
+                        "Installer package by https://jrsoftware.org/isinfo.php \n"+
+                        "Java to exe by https://launch4j.sourceforge.net/index.html \n",
                         "About",
                         JOptionPane.INFORMATION_MESSAGE);
             }

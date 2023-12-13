@@ -44,10 +44,16 @@ On Windows 11: Settings->System->Display->Multiple Displays->Extend This Display
 Credits:
 Icons by: https://icons8.com/
 Fonts by: https://www.fontspace.com/
+Theme by: https://www.formdev.com/flatlaf/
+Installers by: 
+	https://jrsoftware.org/isinfo.php
+	https://launch4j.sourceforge.net/index.html
+Java Runtime: https://www.microsoft.com/openjdk
 
 Author: Relminator (Richard Eric M. Lope)
             http://rel.phatcode.net
             email: vic_viperph@yahoo.com
+
 
 Changes:
 12-11-23
