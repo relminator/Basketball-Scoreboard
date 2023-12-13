@@ -1,3 +1,35 @@
+/********************************************************************
+ *  CenterPanelDisplay.java
+ * 
+ *  Richard Eric Lope BSN RN
+ *  http://rel.phatcode.net
+ *  
+ * License MIT: 
+ * Copyright (c) 2023 Richard Eric Lope 
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software. (As clarification, there is no
+ * requirement that the copyright notice and permission be included in binary
+ * distributions of the Software.)
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ *
+ *******************************************************************/
+
 package net.phatcode.rel;
 
 import java.awt.BorderLayout;
@@ -13,7 +45,6 @@ import java.text.SimpleDateFormat;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -47,6 +78,9 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
     private JLabel lblPeriodNum; 
     
     
+    private String title;
+    private AnimatedLabel lblTitle; 
+    
     private int fontSize;
     private Font numberFont;
     private Font calcFont;
@@ -58,6 +92,7 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
     private long shotClockTime; // Quarter time (12 mins)
     
     private int possession = 0;
+    private int period = 1;
     
     private Timer timer;
     
@@ -75,10 +110,14 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         timer = new Timer(10, this);
         timer.start();
         
+        
         this.setLayout(new BorderLayout());
         setPreferredSize(new Dimension(180, 50));
         setMaximumSize(new Dimension(180, 50)); 
-                
+        
+        title = " #AnyaBasic Invitational ";
+        lblTitle = new AnimatedLabel(300, title);
+        
         northPanel = new JPanel();
         westPanel = new JPanel();
         centerPanel = new JPanel();
@@ -105,30 +144,30 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         lblShot.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblShotClock.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        centerPanel.add(Box.createVerticalStrut(84));
+        centerPanel.add(Box.createVerticalStrut(64));
         centerPanel.add(lblGame);
         centerPanel.add(lblGameClock);
         lblGame.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblGameClock.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        centerPanel.add(Box.createVerticalStrut(84));
+        centerPanel.add(Box.createVerticalStrut(64));
         centerPanel.add(lblPeriod);
         lblPeriod.setAlignmentX(Component.CENTER_ALIGNMENT);
         centerPanel.add(lblPeriodNum);
         lblPeriod.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblPeriodNum.setAlignmentX(Component.CENTER_ALIGNMENT);
         
+        centerPanel.add(Box.createVerticalStrut(64));
+        centerPanel.add(lblTitle);
+        lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
         // Only for alignment
-        URL imageUrl = this.getClass().getClassLoader().getResource("assets/right.png");
-        ImageIcon right = new ImageIcon(imageUrl);
-        imageUrl = this.getClass().getClassLoader().getResource("assets/left.png");
-        ImageIcon left = new ImageIcon(imageUrl);
-        JButton rightButton = new JButton(right);
-        JButton leftButton = new JButton(left);
-        westPanel.add(leftButton);
-        eastPanel.add(rightButton);
-        rightButton.setEnabled(false);
-        leftButton.setEnabled(false);
+        westPanel.setPreferredSize(new Dimension(68, 50));
+        westPanel.setMaximumSize(new Dimension(68, 50)); 
+        westPanel.setMinimumSize(new Dimension(68, 50)); 
+        eastPanel.setPreferredSize(new Dimension(68, 50));
+        eastPanel.setMaximumSize(new Dimension(68, 50)); 
+        eastPanel.setMinimumSize(new Dimension(68, 50)); 
         
         westPanel.add(lblLeftBall);
         eastPanel.add(lblRightBall);
@@ -148,6 +187,8 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         remainingTime = countDownTimer.getRemainingTime();
         shotClockTime = countDownTimer.getShotClockTime();
         possession = countDownTimer.getPossession();
+        period = countDownTimer.getPeriod();
+        lblPeriodNum.setText("" + period);
         updateClockLabels();
         updatePossessionArrow();
         
@@ -178,6 +219,7 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         lblGame.setForeground(textColor);
         lblShot.setForeground(textColor);
         lblPeriod.setForeground(textColor);
+        lblTitle.setForeground(Color.WHITE);
         
         lblGameClock.setForeground(numColor);
         lblShotClock.setForeground(numColor);
@@ -191,12 +233,14 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         lblGameClock.setFont(sFont);
         lblShotClock.setFont(sFont);
         lblPeriodNum.setFont(sFont); 
+        lblTitle.setFont(sFont);        
         
         sFont = calcFont.deriveFont(Font.TRUETYPE_FONT, fontSize-2);
         lblGame.setFont(sFont);
         lblShot.setFont(sFont);
         lblPeriod.setFont(sFont);        
-     
+        lblTitle.setFont(sFont);        
+        
     }
         
     private String getGameClockLabel()
@@ -205,10 +249,19 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         
         String time = df.format(remainingTime);
        
+        lblGameClock.setForeground(Color.GREEN);
         if( remainingTime <  (1000 * 60 * 10))    // < 10 minutes
         {
             if( remainingTime <=  (1000 * 60 * 2) )    // < 2 minutes
             {
+                if( remainingTime <=  (shotClockTime) )    // < 24 secs remaining game time
+                {
+                   lblGameClock.setForeground(Color.MAGENTA);    
+                }
+                else
+                {
+                    lblGameClock.setForeground(Color.ORANGE);
+                }
                 return time.substring(1,time.length()-2);
             }
             return time.substring(1,time.length()-4);
@@ -222,6 +275,12 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         SimpleDateFormat df = new SimpleDateFormat("ss:SSS");
         
         String time = df.format(shotClockTime);
+        
+        if( remainingTime <=  (shotClockTime) )    // < 24 secs remaining game time
+        {
+           lblShotClock.setForeground(Color.MAGENTA);    
+           return "--";    // shot clock off
+        }
         
         if( shotClockTime <=  5000)   // 5 seconds
         {
@@ -256,5 +315,53 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         }
         
     }
+    
+    public void setPeriodLabel()
+    {
+        String text = " PERIOD ";        
+        if( !countDownTimer.isOvertime() )
+        {
+            switch(countDownTimer.getGameType())
+            {
+            case NBA:
+                text = " PERIOD ";
+                break;
+            case FIBA:
+                text = " PERIOD ";
+                break;
+            case COLLEGE:
+                text = "  HALF  ";
+                break;
+            case HIGH_SCHOOL:
+                text = "  HALF  ";
+                break;
+            case THREExTHREE:
+                text = " PERIOD ";
+                break;
+            }
+        }
+        else
+        {
+            text = "OVERTIME";
+        }
+        
+        
+        lblPeriod.setText(text); 
+    }
+
+
+    public String getTitle()
+    {
+        return title;
+    }
+
+
+    public void setTitle(String title)
+    {
+        this.title = title;
+        lblTitle.setMyText(title);
+    }
+    
+    
 
 }

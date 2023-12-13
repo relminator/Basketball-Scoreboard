@@ -1,3 +1,36 @@
+/********************************************************************
+ *  ScoreboardMain.java
+ *  Entry point/main class
+ * 
+ *  Richard Eric Lope BSN RN
+ *  http://rel.phatcode.net
+ *  
+ * License MIT: 
+ * Copyright (c) 2023 Richard Eric Lope 
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software. (As clarification, there is no
+ * requirement that the copyright notice and permission be included in binary
+ * distributions of the Software.)
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ *
+ *******************************************************************/
+
 package net.phatcode.rel;
 
 import java.awt.BorderLayout;
@@ -9,8 +42,10 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.net.URL;
 
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -32,6 +67,16 @@ public class ScoreboardMain extends JFrame
      */
     private static final long serialVersionUID = -5050928423447803298L;
 
+    enum GameType
+    {
+        NBA,
+        FIBA,
+        COLLEGE,
+        HIGH_SCHOOL,
+        THREExTHREE,
+    }
+    
+    private CountdownTimer countdownTimer;
     private CenterPanelDisplay centerPanelDisplay;
     private TeamPanelDisplay home;
     private TeamPanelDisplay visitor;
@@ -77,8 +122,8 @@ public class ScoreboardMain extends JFrame
 
         add(left, BorderLayout.WEST);
         
-        CountdownTimer countdown10Mins = new CountdownTimer(10, 1000* 60 * 10, 64 );
-        add(countdown10Mins, BorderLayout.CENTER);
+        countdownTimer = new CountdownTimer(10, 1000* 60 * 10, 64 );
+        add(countdownTimer, BorderLayout.CENTER);
         
         add(right, BorderLayout.EAST);
         
@@ -90,7 +135,7 @@ public class ScoreboardMain extends JFrame
         setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         
         //Init Display frame for dual monitor setup
-        centerPanelDisplay = new CenterPanelDisplay(countdown10Mins);
+        centerPanelDisplay = new CenterPanelDisplay(countdownTimer);
         home = new TeamPanelDisplay(left);
         visitor = new TeamPanelDisplay(right);
         
@@ -119,11 +164,125 @@ public class ScoreboardMain extends JFrame
         mainMenu.add(settings);
         add(Box.createHorizontalStrut(64));
         mainMenu.add(help);
+       
+        //Images
+        URL imageUrl = this.getClass().getClassLoader().getResource("assets/close-24.png");
+        ImageIcon exit = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/basketball-24.png");
+        ImageIcon newGame = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/player-24.png");
+        ImageIcon team = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/about-24.png");
+        ImageIcon about = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/overtime-24.png");
+        ImageIcon overtime = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/monitors-24.png");
+        ImageIcon checkDisplays = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/scoreboard-24.png");
+        ImageIcon project = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/tv-24.png");
+        ImageIcon tv = new ImageIcon(imageUrl);
+        
+        
         
         // Game
         game.setMnemonic(KeyEvent.VK_G);
 
-        JMenuItem changeHomeNameItem = new JMenuItem("Change Home Team Name");
+        JMenu newGameItem = new JMenu("New Game...");
+        newGameItem.setMnemonic(KeyEvent.VK_N);
+        newGameItem.setToolTipText("Change the name of the Home team.");
+        newGameItem.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                            
+            }
+            
+        });
+        
+        String[] cbmiItems = { "NBA", "FIBA", "College", "High School", "3x3" };
+        JMenuItem[] subItems = new JMenuItem[cbmiItems.length];
+        
+        for( int i = 0; i < cbmiItems.length; i++ )
+        {
+            subItems[i] = new JMenuItem(cbmiItems[i], newGame);
+            newGameItem.add(subItems[i]);
+        }
+        
+        subItems[0].setToolTipText("Start an NBA game.");
+        subItems[0].addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                countdownTimer.setGameType(GameType.NBA);
+                countdownTimer.newGame();
+                countdownTimer.pause();
+                centerPanelDisplay.setPeriodLabel();
+            }
+            
+        });
+        
+        subItems[1].setToolTipText("Start a FIBA game.");
+        subItems[1].addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                countdownTimer.setGameType(GameType.FIBA);
+                countdownTimer.newGame();
+                countdownTimer.pause();
+                centerPanelDisplay.setPeriodLabel();
+            }
+            
+        });
+        
+        
+        subItems[2].setToolTipText("Start a College game.");
+        subItems[2].addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                countdownTimer.setGameType(GameType.COLLEGE);
+                countdownTimer.newGame();
+                countdownTimer.pause();
+                centerPanelDisplay.setPeriodLabel();
+            }
+            
+        });
+        
+        subItems[3].setToolTipText("Start a High School game.");
+        subItems[3].addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                countdownTimer.setGameType(GameType.HIGH_SCHOOL);
+                countdownTimer.newGame();
+                countdownTimer.pause();
+                centerPanelDisplay.setPeriodLabel();
+            }
+            
+        });
+        
+        subItems[4].setToolTipText("Start a 3x3 game.");
+        subItems[4].addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                countdownTimer.setGameType(GameType.THREExTHREE);
+                countdownTimer.newGame();
+                countdownTimer.pause();
+                centerPanelDisplay.setPeriodLabel();
+            }
+            
+        });
+        
+        
+        JMenuItem changeHomeNameItem = new JMenuItem("Change Home Team Name", team);
         changeHomeNameItem.setMnemonic(KeyEvent.VK_H);
         changeHomeNameItem.setToolTipText("Change the name of the Home team.");
         changeHomeNameItem.addActionListener(new ActionListener() 
@@ -140,7 +299,7 @@ public class ScoreboardMain extends JFrame
             
         });
         
-        JMenuItem changeVisitorNameItem = new JMenuItem("Change Visitor Team Name");
+        JMenuItem changeVisitorNameItem = new JMenuItem("Change Visitor Team Name", team);
         changeVisitorNameItem.setMnemonic(KeyEvent.VK_V);
         changeVisitorNameItem.setToolTipText("Change the name of the Visitor team.");
         changeVisitorNameItem.addActionListener(new ActionListener() 
@@ -157,10 +316,42 @@ public class ScoreboardMain extends JFrame
             
         });
         
+        JMenuItem startOverTimeItem = new JMenuItem("Start Overtime", overtime);
+        startOverTimeItem.setMnemonic(KeyEvent.VK_O);
+        startOverTimeItem.setToolTipText("Starts an overtime game.");
+        startOverTimeItem.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                countdownTimer.overtime();
+                centerPanelDisplay.setPeriodLabel();
+            }
+            
+        });
+        
+        JMenuItem exitItem = new JMenuItem("Exit", exit);
+        exitItem.setMnemonic(KeyEvent.VK_X);
+        exitItem.setToolTipText("Closes the app.");
+        exitItem.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                int n = JOptionPane.showConfirmDialog( frameID, 
+                        "Would you like to exit the application?",
+                        "Exit",
+                        JOptionPane.YES_NO_OPTION );
+                
+                if (n == JOptionPane.YES_OPTION) System.exit(0);
+            }
+            
+        });
+        
         
         // Settings
         
-        JMenuItem addScreenItem = new JMenuItem("Add Screen");
+        JMenuItem addScreenItem = new JMenuItem("Project to second screen", project);
         addScreenItem.setMnemonic(KeyEvent.VK_S);
         addScreenItem.setToolTipText("Show a cleaner display on another screen.");
         addScreenItem.addActionListener(new ActionListener() 
@@ -171,14 +362,49 @@ public class ScoreboardMain extends JFrame
                 displayFrame.setVisible(true);
                 showOnScreen(0,frameID);
                 showOnScreenMaximized(1,displayFrame);
+                //showOnScreen(1,displayFrame);
+            }
+            
+        });
+        
+        JMenuItem checkExtScreenItem = new JMenuItem("Check External Displays", checkDisplays);
+        checkExtScreenItem.setMnemonic(KeyEvent.VK_E);
+        checkExtScreenItem.setToolTipText("Check of there is an external display.");
+        checkExtScreenItem.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                if( canExtendScreen() )
+                {
+                    addScreenItem.setEnabled(true);
+                }
+            }
+            
+        });
+        
+        JMenuItem changeTitleItem = new JMenuItem("Change Title", tv);
+        changeTitleItem.setMnemonic(KeyEvent.VK_E);
+        changeTitleItem.setToolTipText("Chang the text of the scrolling the title.");
+        changeTitleItem.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                String newTitle = JOptionPane.showInputDialog( 
+                        "Please input new title: \n", 
+                        centerPanelDisplay.getTitle());
+                
+                if( newTitle != null ) centerPanelDisplay.setTitle(newTitle);
+                
             }
             
         });
         
         
-        // Settings
+        // Help
         
-        JMenuItem aboutItem = new JMenuItem("About...");
+        JMenuItem aboutItem = new JMenuItem("About...", about);
         aboutItem.setMnemonic(KeyEvent.VK_A);
         aboutItem.addActionListener(new ActionListener() 
         {
@@ -200,14 +426,23 @@ public class ScoreboardMain extends JFrame
         
         
         // add
+        game.add(newGameItem);
         game.add(changeHomeNameItem);
         game.add(changeVisitorNameItem);
-     
+        game.addSeparator();
+        game.add(startOverTimeItem);
+        game.addSeparator();
+        game.add(changeTitleItem);
+        game.addSeparator();
+        game.add(exitItem);
+        
+        settings.add(checkExtScreenItem);
         settings.add(addScreenItem);
         
         
         help.add(aboutItem);
         
+        // Disable if we don't have an external screen
         addScreenItem.setEnabled(false);
         if( canExtendScreen() )
         {

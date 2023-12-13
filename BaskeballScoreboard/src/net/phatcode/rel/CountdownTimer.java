@@ -1,3 +1,35 @@
+/********************************************************************
+ *  CountdownTimer.java
+ * 
+ *  Richard Eric Lope BSN RN
+ *  http://rel.phatcode.net
+ *  
+ * License MIT: 
+ * Copyright (c) 2023 Richard Eric Lope 
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software. (As clarification, there is no
+ * requirement that the copyright notice and permission be included in binary
+ * distributions of the Software.)
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ *
+ *******************************************************************/
+
 package net.phatcode.rel;
 
 import java.awt.BorderLayout;
@@ -65,8 +97,12 @@ public class CountdownTimer extends JPanel implements ActionListener
     
     private JToolBar toolBar;
     
+    private JButton plusButton;
+    private JButton minusButton;
+    private JToolBar periodToolBar;
+    
     private Timer timer;
-    private long remainingTime; // QT time () 12 mins.
+    private long remainingTime = 1000 * 60 * 10; // QT time () 12 mins.
 
     private long lastUpdateTime; // When count was last updated
     
@@ -81,6 +117,14 @@ public class CountdownTimer extends JPanel implements ActionListener
     private Color numColor = Color.GREEN;
     
     private int possession = 0;
+    private int period =  1;
+    
+    private boolean overtime = false;
+    
+    private long shotClockDuration;
+    private long gameDuration;
+    
+    private ScoreboardMain.GameType gameType;
     
     public CountdownTimer( int delayPerTick,
                            long duration, 
@@ -88,47 +132,16 @@ public class CountdownTimer extends JPanel implements ActionListener
     {
         this.size = size;
         this.remainingTime = duration;
+        playBuzzer();
         
-        shotClockTime = (1000 * 24);
+        gameType = ScoreboardMain.GameType.COLLEGE;
+        
+        lastUpdateTime = System.currentTimeMillis(); 
+        
         this.setLayout(new BorderLayout());
         setPreferredSize(new Dimension(180, 50));
         setMaximumSize(new Dimension(180, 50)); 
         
-        timer = new Timer(delayPerTick, new ActionListener() 
-        {
-            @Override
-            public void actionPerformed(ActionEvent e) 
-            {
-                long now = System.currentTimeMillis(); 
-                elapsed = now - lastUpdateTime; // ms elapsed since last update
-                remainingTime -= elapsed; 
-                shotClockTime -= elapsed;
-                lastUpdateTime = now;   //remember this update time
-                
-                if( shotClockTime < 0 )
-                {
-                    remainingTime += elapsed;  //fix timer to MULTIPLES OF 24:00
-                    shotClockTime = (1000 * 24);
-                    updateClockLabels();
-                    pause();
-                    playBuzzer();
-                    
-                }
-                
-                if( remainingTime < 0 ) 
-                {
-                    remainingTime = 0;
-                }
-                
-                if (remainingTime == 0) 
-                {
-                    timer.stop();
-                }
-                                        
-                updateClockLabels();
-                
-            }
-        });
         
         northPanel = new JPanel();
         westPanel = new JPanel();
@@ -137,6 +150,7 @@ public class CountdownTimer extends JPanel implements ActionListener
         southPanel = new JPanel();
             
         toolBar = new JToolBar();
+        periodToolBar = new JToolBar();
         
         add(northPanel, BorderLayout.NORTH);
         add(westPanel, BorderLayout.WEST);
@@ -170,6 +184,9 @@ public class CountdownTimer extends JPanel implements ActionListener
         centerPanel.add(lblPeriodNum);
         lblPeriod.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblPeriodNum.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //centerPanel.add(Box.createVerticalStrut(64));
+        centerPanel.add(periodToolBar);
+        periodToolBar.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         westPanel.add(leftButton);
         eastPanel.add(rightButton);
@@ -186,8 +203,12 @@ public class CountdownTimer extends JPanel implements ActionListener
         
         loadFont();
         
+        
+        newGame();
+        
         updateClockLabels();
         
+        initTimer( delayPerTick );
         
     }
 
@@ -197,6 +218,49 @@ public class CountdownTimer extends JPanel implements ActionListener
     
     }
 
+    private void initTimer( int delayPerTick )
+    {
+        timer = new Timer(delayPerTick, new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent e) 
+            {
+                long now = System.currentTimeMillis(); 
+                elapsed = now - lastUpdateTime; // ms elapsed since last update
+                remainingTime -= elapsed; 
+                shotClockTime -= elapsed;
+                lastUpdateTime = now;   //remember this update time
+                
+                if( shotClockTime < 0 )
+                {
+                    remainingTime += elapsed;  //fix timer to MULTIPLES OF 24:00
+                    shotClockTime = shotClockDuration;
+                    
+                    updateClockLabels();
+                    pause();
+                    playBuzzer();
+                    
+                }
+                
+                if( remainingTime < 0 ) 
+                {
+                    remainingTime = 0;
+                }
+                
+                if (remainingTime == 0) 
+                {
+                    playBuzzer();
+                    timer.stop();
+                }
+                                        
+                updateClockLabels();
+                
+            }
+        });
+        
+        
+    }
+    
     
     private void initLabels()
     {
@@ -245,6 +309,17 @@ public class CountdownTimer extends JPanel implements ActionListener
         ImageIcon left = new ImageIcon(imageUrl);
         imageUrl = this.getClass().getClassLoader().getResource("assets/right.png");
         ImageIcon right = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/plus.png");
+        ImageIcon plus = new ImageIcon(imageUrl);
+        imageUrl = this.getClass().getClassLoader().getResource("assets/minus.png");
+        ImageIcon minus = new ImageIcon(imageUrl);
+        
+        plusButton = new JButton(plus);
+        minusButton = new JButton(minus);
+        
+        periodToolBar.add(minusButton);
+        periodToolBar.add(plusButton);
+        periodToolBar.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         
         startButton = new JButton(start);
@@ -283,8 +358,8 @@ public class CountdownTimer extends JPanel implements ActionListener
             @Override
             public void actionPerformed(ActionEvent event) 
             {
-                shotClockTime = (1000 * 24);
-                remainingTime += elapsed;  //fix timer to MULTIPLES OF 24:00
+                shotClockTime = shotClockDuration;
+                //remainingTime += elapsed;  
                 updateClockLabels();
                 pause();
             }
@@ -300,12 +375,12 @@ public class CountdownTimer extends JPanel implements ActionListener
                 SimpleDateFormat df = new SimpleDateFormat("mm:ss:SSS");
                 
                 String time = df.format(remainingTime);
-               
                 String gameClockString = JOptionPane.showInputDialog( 
                         "Please input Gameclock: \n"+
                         "Current clock is:",
                         time);                   
-                remainingTime = timeToMillis( gameClockString );
+                if( gameClockString != null )
+                    remainingTime = timeToMillis( gameClockString );
                 
                 updateClockLabels();
             }
@@ -325,8 +400,9 @@ public class CountdownTimer extends JPanel implements ActionListener
                 String shotClockString = JOptionPane.showInputDialog( 
                         "Please input Shotclock: \n"+
                         "Current clock is:",
-                        time);                   
-                shotClockTime = shotToMillis( shotClockString );
+                        time);        
+                if( shotClockString != null )
+                    shotClockTime = shotToMillis( shotClockString );
                 
                 updateClockLabels();
             }
@@ -353,6 +429,31 @@ public class CountdownTimer extends JPanel implements ActionListener
                 updatePossessionArrow();
             }
         });
+        
+        plusButton.setToolTipText("Add period");
+        plusButton.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                period++;
+                lblPeriodNum.setText("" + period);
+            }
+        });
+        
+                
+        
+        minusButton.setToolTipText("Subtract Period");
+        minusButton.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                if( period > 1 ) period--;
+                lblPeriodNum.setText("" + period);                
+            }
+        });
+        
 
     }
 
@@ -422,10 +523,19 @@ public class CountdownTimer extends JPanel implements ActionListener
         
         String time = df.format(remainingTime);
        
+        
         if( remainingTime <  (1000 * 60 * 10))    // < 10 minutes
         {
             if( remainingTime <=  (1000 * 60 * 2) )    // < 2 minutes
             {
+                if( remainingTime <=  (shotClockTime) )    // < 24 secs remaining game time
+                {
+                   lblGameClock.setForeground(Color.MAGENTA);    
+                }
+                else
+                {
+                    lblGameClock.setForeground(Color.ORANGE);
+                }
                 return time.substring(1,time.length()-2);
             }
             return time.substring(1,time.length()-4);
@@ -439,6 +549,12 @@ public class CountdownTimer extends JPanel implements ActionListener
         SimpleDateFormat df = new SimpleDateFormat("ss:SSS");
         
         String time = df.format(shotClockTime);
+        
+        if( remainingTime <=  (shotClockTime) )    // < 24 secs remaining game time
+        {
+           lblShotClock.setForeground(Color.MAGENTA);    
+           return "--";    // shot clock off
+        }
         
         if( shotClockTime <=  5000)   // 5 seconds
         {
@@ -461,23 +577,26 @@ public class CountdownTimer extends JPanel implements ActionListener
     
     private void resume() 
     {
-      // Restore the time we're counting down from and restart the timer.
-      lastUpdateTime = System.currentTimeMillis();
-      timer.start(); // Start the timer
+      if( !timer.isRunning() )
+      {
+          lastUpdateTime = System.currentTimeMillis();
+          timer.start(); 
+      }
     }
 
-    private void pause() 
+    public void pause() 
     {
-      // Subtract elapsed time from the remaining time and stop timing
-      long now = System.currentTimeMillis();
-      remainingTime -= (now - lastUpdateTime);
-      timer.stop(); // Stop the timer
+      if( timer.isRunning() )
+      {
+          long now = System.currentTimeMillis();
+          remainingTime -= (now - lastUpdateTime);
+          timer.stop(); 
+      }
     }
     
     public void scored()
     {
-        shotClockTime = (1000 * 24);
-        remainingTime += elapsed;  //fix timer to MULTIPLES OF 24:00
+        shotClockTime = shotClockDuration;
         updateClockLabels();
         pause();
         
@@ -508,6 +627,7 @@ public class CountdownTimer extends JPanel implements ActionListener
         {
             lblGameClock.setFont(new Font("Monospaced", Font.PLAIN, (int) size));
             lblShotClock.setFont(new Font("Monospaced", Font.PLAIN, (int) size));
+            lblPeriodNum.setFont(new Font("Monospaced", Font.PLAIN, (int) size));
         } 
         else
         {
@@ -540,6 +660,7 @@ public class CountdownTimer extends JPanel implements ActionListener
         {
             lblGameClock.setFont(new Font("Monospaced", Font.PLAIN, (int) size-2));
             lblShotClock.setFont(new Font("Monospaced", Font.PLAIN, (int) size-2));
+            lblPeriod.setFont(new Font("Monospaced", Font.PLAIN, (int) size-2));
         } 
         else
         {
@@ -555,10 +676,12 @@ public class CountdownTimer extends JPanel implements ActionListener
     
     private void playBuzzer()
     {
-        InputStream is = this.getClass().getClassLoader().getResourceAsStream("assets/buzzer.wav");
+        //InputStream is = this.getClass().getClassLoader().getResourceAsStresm("assets/buzzer.wav");
         try
         {
-            AudioInputStream buzzerAudioInputStream = AudioSystem.getAudioInputStream(is);
+            AudioInputStream buzzerAudioInputStream = 
+                    AudioSystem.getAudioInputStream(
+                            this.getClass().getClassLoader().getResource("assets/buzzer.wav"));
             buzzerClip = AudioSystem.getClip();
             buzzerClip.open(buzzerAudioInputStream);
             buzzerClip.start();
@@ -580,6 +703,105 @@ public class CountdownTimer extends JPanel implements ActionListener
         }
     }
 
+    public void newGame()
+    {
+        switch(gameType)
+        {
+        case NBA:
+            shotClockDuration = 1000 * 24;
+            gameDuration = 1000 * 60 * 12;
+            break;
+        case FIBA:
+            shotClockDuration = 1000 * 24;
+            gameDuration = 1000 * 60 * 10;
+            break;
+        case COLLEGE:
+            shotClockDuration = 1000 * 30;
+            gameDuration = 1000 * 60 * 20;
+            break;
+        case HIGH_SCHOOL:
+            shotClockDuration = 1000 * 35;
+            gameDuration = 1000 * 60 * 16;
+            break;
+        case THREExTHREE:
+            shotClockDuration = 1000 * 12;
+            gameDuration = 1000 * 60 * 10;
+            break;
+        }
+        
+        shotClockTime = shotClockDuration;
+        remainingTime = gameDuration;
+        possession = 0;
+        overtime = false;
+        setPeriodLabel();
+        updateClockLabels();
+            
+    }
+
+    public void overtime()
+    {
+        switch(gameType)
+        {
+        case NBA:
+            shotClockDuration = 1000 * 24;
+            break;
+        case FIBA:
+            shotClockDuration = 1000 * 24;
+            break;
+        case COLLEGE:
+            shotClockDuration = 1000 * 30;
+            break;
+        case HIGH_SCHOOL:
+            shotClockDuration = 1000 * 35;
+            break;
+        case THREExTHREE:
+            shotClockDuration = 1000 * 12;
+            break;
+        }
+        pause();
+        gameDuration = 1000 * 60 * 5;     // 5 minutes
+        shotClockTime = shotClockDuration;
+        remainingTime = gameDuration;
+        overtime = true;
+        setPeriodLabel();
+        updateClockLabels();
+        
+    
+    }
+
+    private void setPeriodLabel()
+    {
+        String text = " PERIOD ";        
+        if( !overtime )
+        {
+            switch(gameType)
+            {
+            case NBA:
+                text = " PERIOD ";
+                break;
+            case FIBA:
+                text = " PERIOD ";
+                break;
+            case COLLEGE:
+                text = "  HALF  ";
+                break;
+            case HIGH_SCHOOL:
+                text = "  HALF  ";
+                break;
+            case THREExTHREE:
+                text = " PERIOD ";
+                break;
+            }
+        }
+        else
+        {
+            text = "OVERTIME";
+        }
+        
+        
+        lblPeriod.setText(text); 
+    }
+    
     public long getRemainingTime()
     {
         return remainingTime;
@@ -621,7 +843,33 @@ public class CountdownTimer extends JPanel implements ActionListener
     {
         return possession;
     }
+
+    public int getPeriod()
+    {
+        return period;
+    }
+
+    public boolean isOvertime()
+    {
+        return overtime;
+    }
+
+    public void setOvertime(boolean overtime)
+    {
+        this.overtime = overtime;
+    }
+
+    public ScoreboardMain.GameType getGameType()
+    {
+        return gameType;
+    }
+
+    public void setGameType(ScoreboardMain.GameType gameType)
+    {
+        this.gameType = gameType;
+    }
      
+    
     
     
     // getters and setters

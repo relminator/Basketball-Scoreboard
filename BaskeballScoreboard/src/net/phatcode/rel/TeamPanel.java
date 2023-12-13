@@ -1,3 +1,35 @@
+/********************************************************************
+ *  TeamPanel.java
+ * 
+ *  Richard Eric Lope BSN RN
+ *  http://rel.phatcode.net
+ *  
+ * License MIT: 
+ * Copyright (c) 2023 Richard Eric Lope 
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software. (As clarification, there is no
+ * requirement that the copyright notice and permission be included in binary
+ * distributions of the Software.)
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ *
+ *******************************************************************/
+
 package net.phatcode.rel;
 
 import java.awt.Color;
@@ -28,11 +60,15 @@ public class TeamPanel extends JPanel
     private String teamName;
     private int score;
     private int fouls;
+    private int timeOuts;
+    
     
     private AnimatedLabel nameLabel;
     private JLabel scoreLabel;
     private JLabel foulsLabel;
     private JLabel foulsLabelNum;
+    private JLabel timeOutsLabel; 
+    private JLabel timeOutsLabelNum; 
     
     private JButton plusButton;
     private JButton minusButton;
@@ -41,6 +77,11 @@ public class TeamPanel extends JPanel
     private JButton foulsPlusButton;
     private JButton foulsMinusButton;
     private JToolBar foulsButtonToolBar;
+    
+    private JButton timeOutsPlusButton;
+    private JButton timeOutsMinusButton;
+    private JToolBar timeOutsButtonToolBar;
+    
     
     private int size;
     private Font numberFont;
@@ -55,6 +96,7 @@ public class TeamPanel extends JPanel
         this.teamName = teamName;
         score = 0;
         fouls = 0;
+        timeOuts = 0;
         size = 64;
         
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -75,16 +117,22 @@ public class TeamPanel extends JPanel
         scoreLabel = new JLabel("0");
         foulsLabel = new JLabel("Fouls");
         foulsLabelNum = new JLabel("0");
+        timeOutsLabel = new JLabel("Timeouts");
+        timeOutsLabelNum = new JLabel("0");
         
         nameLabel.setForeground(textColor);
         scoreLabel.setForeground(numColor);
         foulsLabel.setForeground(textColor);
         foulsLabelNum.setForeground(numColor);
+        timeOutsLabel.setForeground(textColor);
+        timeOutsLabelNum.setForeground(numColor);
         
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         foulsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         foulsLabelNum.setAlignmentX(Component.CENTER_ALIGNMENT);
+        timeOutsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        timeOutsLabelNum.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         
     }
@@ -94,6 +142,7 @@ public class TeamPanel extends JPanel
     
         buttonToolBar = new JToolBar();
         foulsButtonToolBar = new JToolBar();
+        timeOutsButtonToolBar = new JToolBar();
         
         URL imageUrl = this.getClass().getClassLoader().getResource("assets/plus.png");
         ImageIcon plus = new ImageIcon(imageUrl);
@@ -117,9 +166,15 @@ public class TeamPanel extends JPanel
         
         foulsButtonToolBar.setAlignmentX(Component.CENTER_ALIGNMENT);
         
+        timeOutsPlusButton = new JButton(plus);
+        timeOutsMinusButton = new JButton(minus);
+        
+        timeOutsButtonToolBar.add(timeOutsMinusButton);
+        timeOutsButtonToolBar.add(timeOutsPlusButton);
+        
+        timeOutsButtonToolBar.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         plusButton.setToolTipText("Add Score");
-        plusButton.setMnemonic('P');
         plusButton.addActionListener(new ActionListener() 
         {
             @Override
@@ -166,20 +221,44 @@ public class TeamPanel extends JPanel
             }
         });
     
+        timeOutsPlusButton.setToolTipText("Add Timeouts");
+        timeOutsPlusButton.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                timeOuts++;
+                timeOutsLabelNum.setText("" + timeOuts);
+            }
+        });
+        
+        timeOutsMinusButton.setToolTipText("Subtract Timeouts");
+        timeOutsMinusButton.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                if( timeOuts > 0 ) timeOuts--;
+                timeOutsLabelNum.setText("" + timeOuts);
+            }
+        });
         
     }
     
     private void addComponents()
     {
         add(nameLabel);
-        add(Box.createVerticalStrut(34));
+        add(Box.createVerticalStrut(16));
         add(scoreLabel);
-        add(Box.createVerticalStrut(12));
         add(buttonToolBar);
-        add(Box.createVerticalStrut(64));
+        add(Box.createVerticalStrut(16));
         add(foulsLabel);
         add(foulsLabelNum);
         add(foulsButtonToolBar);
+        add(Box.createVerticalStrut(16));
+        add(timeOutsLabel);
+        add(timeOutsLabelNum);
+        add(timeOutsButtonToolBar);
         
         
     }
@@ -209,13 +288,15 @@ public class TeamPanel extends JPanel
         {
             scoreLabel.setFont(new Font("Monospaced", Font.PLAIN, (int) (size * 1.5)));
             foulsLabelNum.setFont(new Font("Monospaced", Font.PLAIN, (int) size));
+            timeOutsLabelNum.setFont(new Font("Monospaced", Font.PLAIN, (int) size));
         } 
         else
         {
             Font sFont = numberFont.deriveFont(Font.TRUETYPE_FONT, (int)(size * 1.5));
             scoreLabel.setFont(sFont);
             sFont = numberFont.deriveFont(Font.TRUETYPE_FONT, size);
-            foulsLabelNum.setFont(sFont);            
+            foulsLabelNum.setFont(sFont);
+            timeOutsLabelNum.setFont(sFont);
         }
 
      // load font
@@ -240,13 +321,13 @@ public class TeamPanel extends JPanel
         {
             nameLabel.setFont(new Font("Monospaced", Font.PLAIN, (int) size-2));
             foulsLabel.setFont(new Font("Monospaced", Font.PLAIN, (int) size-2));
-        } 
+            timeOutsLabel.setFont(new Font("Monospaced", Font.PLAIN, (int) size-2));} 
         else
         {
             Font sFont = calcFont.deriveFont(Font.TRUETYPE_FONT, size-2);
             nameLabel.setFont(sFont);
             foulsLabel.setFont(sFont);
-
+            timeOutsLabel.setFont(sFont);
         }
 
 
@@ -296,6 +377,11 @@ public class TeamPanel extends JPanel
     {
         this.teamName = teamName;
         nameLabel.setMyText(teamName);
+    }
+
+    public int getTimeOuts()
+    {
+        return timeOuts;
     }
  
     
