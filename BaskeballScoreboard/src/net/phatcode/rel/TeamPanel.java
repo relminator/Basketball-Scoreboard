@@ -34,7 +34,6 @@ package net.phatcode.rel;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
@@ -63,7 +62,7 @@ public class TeamPanel extends JPanel
     private int timeOuts;
     
     
-    private AnimatedLabel nameLabel;
+    private JLabel nameLabel;
     private JLabel scoreLabel;
     private JLabel foulsLabel;
     private JLabel foulsLabelNum;
@@ -100,8 +99,8 @@ public class TeamPanel extends JPanel
         size = 64;
         
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setPreferredSize(new Dimension(350, 50));
-        setMaximumSize(new Dimension(350, 50)); 
+        //setPreferredSize(new Dimension(350, 50));
+        //setMaximumSize(new Dimension(350, 50)); 
         
         initLabels();
         initButtons();
@@ -113,11 +112,11 @@ public class TeamPanel extends JPanel
     private void initLabels()
     {
         
-        nameLabel = new AnimatedLabel(500, teamName);
+        nameLabel = new JLabel(teamName);
         scoreLabel = new JLabel("0");
         foulsLabel = new JLabel("Fouls");
         foulsLabelNum = new JLabel("0");
-        timeOutsLabel = new JLabel("Timeouts");
+        timeOutsLabel = new JLabel("    Timeouts    ");
         timeOutsLabelNum = new JLabel("0");
         
         nameLabel.setForeground(textColor);
@@ -376,7 +375,7 @@ public class TeamPanel extends JPanel
     public void setTeamName(String teamName)
     {
         this.teamName = teamName;
-        nameLabel.setMyText(teamName);
+        nameLabel.setText(teamName);
     }
 
     public int getTimeOuts()

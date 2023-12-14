@@ -12,7 +12,7 @@ Features:
 * Free
 
 
-Release 1.0.0
+Release 1.1.0
 
 The cleaner diplay you see on extended screens:
 ![Alt text](basketscreen01.png?raw=true)
@@ -69,3 +69,8 @@ Changes:
 * Timeouts
 * Marquee Title on center bottom
 * Cleaner Display 
+
+12-14-23(1.1.0)
+* Title marquee on top
+* Made the teamnames non-animated as requested
+* centering and size fixes

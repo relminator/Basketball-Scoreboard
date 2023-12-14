@@ -35,7 +35,6 @@ package net.phatcode.rel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
@@ -139,8 +138,8 @@ public class CountdownTimer extends JPanel implements ActionListener
         lastUpdateTime = System.currentTimeMillis(); 
         
         this.setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(180, 50));
-        setMaximumSize(new Dimension(180, 50)); 
+        //setPreferredSize(new Dimension(180, 50));
+        //setMaximumSize(new Dimension(180, 50)); 
         
         
         northPanel = new JPanel();
@@ -870,6 +869,11 @@ public class CountdownTimer extends JPanel implements ActionListener
     }
      
     
+    public void setLabelFont(JLabel label, int fontSize )
+    {
+        Font sFont = calcFont.deriveFont(Font.TRUETYPE_FONT, fontSize);
+        label.setFont(sFont);
+    }
     
     
     // getters and setters

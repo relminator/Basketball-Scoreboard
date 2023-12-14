@@ -112,10 +112,10 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         
         
         this.setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(180, 50));
-        setMaximumSize(new Dimension(180, 50)); 
+        //setPreferredSize(new Dimension(180, 50));
+        //setMaximumSize(new Dimension(180, 50)); 
         
-        title = " #AnyaBasic Invitational ";
+        title = "#AnyaBasic    ";
         lblTitle = new AnimatedLabel(300, title);
         
         northPanel = new JPanel();
@@ -163,10 +163,10 @@ public class CenterPanelDisplay extends JPanel implements ActionListener
         
         // Only for alignment
         westPanel.setPreferredSize(new Dimension(68, 50));
-        westPanel.setMaximumSize(new Dimension(68, 50)); 
+        //westPanel.setMaximumSize(new Dimension(68, 50)); 
         westPanel.setMinimumSize(new Dimension(68, 50)); 
         eastPanel.setPreferredSize(new Dimension(68, 50));
-        eastPanel.setMaximumSize(new Dimension(68, 50)); 
+        //eastPanel.setMaximumSize(new Dimension(68, 50)); 
         eastPanel.setMinimumSize(new Dimension(68, 50)); 
         
         westPanel.add(lblLeftBall);

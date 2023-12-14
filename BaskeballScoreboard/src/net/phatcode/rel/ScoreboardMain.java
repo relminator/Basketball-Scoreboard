@@ -35,7 +35,7 @@ package net.phatcode.rel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Component;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
@@ -52,6 +52,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -82,7 +83,8 @@ public class ScoreboardMain extends JFrame
     private TeamPanelDisplay visitor;
     private DisplayFrame displayFrame;
     
-    
+    private AnimatedLabel titleLabel;
+    private String title;
     private JMenuBar mainMenu = new JMenuBar();
     private JMenu game = new JMenu("Game");
     private JMenu settings = new JMenu("Settings");
@@ -111,19 +113,21 @@ public class ScoreboardMain extends JFrame
         setTitle("Scorebord Plus");
         
         
-        setPreferredSize(new Dimension(1337, 700));
+        //setPreferredSize(new Dimension(1337, 700));
         
         //mainMenu.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         setJMenuBar(mainMenu);
         initMenu();
         
-        TeamPanel left = new TeamPanel("HOME");
-        TeamPanel right = new TeamPanel("VISITOR");
+        
+        TeamPanel left = new TeamPanel("   HOME     ");
+        TeamPanel right =new TeamPanel("   VISITOR  ");
 
         add(left, BorderLayout.WEST);
         
         countdownTimer = new CountdownTimer(10, 1000* 60 * 10, 64 );
         add(countdownTimer, BorderLayout.CENTER);
+        
         
         add(right, BorderLayout.EAST);
         
@@ -141,6 +145,14 @@ public class ScoreboardMain extends JFrame
         
         displayFrame = new DisplayFrame(centerPanelDisplay,
                                         home, visitor);
+        JPanel northPanel = new JPanel();
+        title = " #AnyaBasic Invitational Cup ";
+        titleLabel = new AnimatedLabel(300, title);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        northPanel.add(titleLabel);
+        countdownTimer.setLabelFont(titleLabel, 70);
+        displayFrame.add(northPanel, BorderLayout.NORTH);
         //displayFrame.setVisible(true);
         displayFrame.setVisible(false);
         
@@ -190,7 +202,7 @@ public class ScoreboardMain extends JFrame
 
         JMenu newGameItem = new JMenu("New Game...");
         newGameItem.setMnemonic(KeyEvent.VK_N);
-        newGameItem.setToolTipText("Change the name of the Home team.");
+        newGameItem.setToolTipText("Start a new game...");
         newGameItem.addActionListener(new ActionListener() 
         {
             @Override
@@ -292,9 +304,9 @@ public class ScoreboardMain extends JFrame
             {
                 String newName = JOptionPane.showInputDialog( 
                         "Please enter home team name:",
-                        home.getTeamName());                   
-                
-                home.setTeamName(newName);             
+                        home.getTeamName()); 
+                if( newName.length() > 10 ) newName = left(newName, 10); 
+                home.setTeamName(newName);           
             }
             
         });
@@ -310,7 +322,7 @@ public class ScoreboardMain extends JFrame
                 String newName = JOptionPane.showInputDialog( 
                         "Please enter visitor team name:",
                         visitor.getTeamName());                   
-                
+                if( newName.length() > 10 ) newName = left(newName, 10); 
                 visitor.setTeamName(newName);             
             }
             
@@ -383,10 +395,32 @@ public class ScoreboardMain extends JFrame
             
         });
         
-        JMenuItem changeTitleItem = new JMenuItem("Change Title", tv);
-        changeTitleItem.setMnemonic(KeyEvent.VK_E);
-        changeTitleItem.setToolTipText("Chang the text of the scrolling the title.");
-        changeTitleItem.addActionListener(new ActionListener() 
+        JMenuItem changeTopTitleItem = new JMenuItem("Change Main Title", tv);
+        changeTopTitleItem.setMnemonic(KeyEvent.VK_E);
+        changeTopTitleItem.setToolTipText("Chang the text of the top title.");
+        changeTopTitleItem.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent event) 
+            {
+                String newTitle = JOptionPane.showInputDialog( 
+                        "Please input new title: \n", 
+                        title);
+                
+                if( newTitle != null ) 
+                {
+                    if( newTitle.length() > 30 ) newTitle = left(newTitle, 30); 
+                    titleLabel.setMyText(newTitle);
+                }
+                
+            }
+            
+        });
+        
+        JMenuItem changeBottomTitleItem = new JMenuItem("Change Bottom Title", tv);
+        changeBottomTitleItem.setMnemonic(KeyEvent.VK_E);
+        changeBottomTitleItem.setToolTipText("Chang the text of the bottom title.");
+        changeBottomTitleItem.addActionListener(new ActionListener() 
         {
             @Override
             public void actionPerformed(ActionEvent event) 
@@ -395,7 +429,11 @@ public class ScoreboardMain extends JFrame
                         "Please input new title: \n", 
                         centerPanelDisplay.getTitle());
                 
-                if( newTitle != null ) centerPanelDisplay.setTitle(newTitle);
+                if( newTitle != null ) 
+                {
+                    if( newTitle.length() > 18 ) newTitle = left(newTitle, 18); 
+                    centerPanelDisplay.setTitle(newTitle);
+                }
                 
             }
             
@@ -412,7 +450,7 @@ public class ScoreboardMain extends JFrame
             public void actionPerformed(ActionEvent event) 
             {
                 JOptionPane.showMessageDialog(frameID,
-                        "Basketball Scoreboard \n"+
+                        "Basketball Scoreboard 1.1.0\n"+
                         "\n"+
                         "Richard Eric M. Lope\n"+
                         "http://rel.phatcode.net\n"+
@@ -437,7 +475,8 @@ public class ScoreboardMain extends JFrame
         game.addSeparator();
         game.add(startOverTimeItem);
         game.addSeparator();
-        game.add(changeTitleItem);
+        game.add(changeTopTitleItem);
+        game.add(changeBottomTitleItem);
         game.addSeparator();
         game.add(exitItem);
         
@@ -525,5 +564,8 @@ public class ScoreboardMain extends JFrame
             
     }
     
-    
+    private String left( String orig, int len)
+    {
+        return orig.substring(0, Math.min(len, orig.length()));
+    }
 }
